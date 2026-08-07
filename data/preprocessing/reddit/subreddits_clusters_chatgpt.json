@@ -1,0 +1,239 @@
+[
+  {
+    "cluster": "General German Community & Discussion",
+    "description": "Broad discussion spaces about life in Germany, general questions, culture, and mixed topics.",
+    "subreddits": [
+      "de",
+      "AskGermany",
+      "FragReddit",
+      "FragenUndAntworten",
+      "KeineDummenFragen",
+      "Ratschlag",
+      "wirklichgutefrage",
+      "tja",
+      "WerWieWas",
+      "de_IAmA",
+      "Nachrichten",
+      "GuteNachrichten",
+      "DErwachsen",
+      "einfach_posten",
+      "wasistdas",
+      "serviervorschlag",
+      "duschgedanken",
+      "tragedeigh"
+    ]
+  },
+  {
+    "cluster": "Humor, Memes & Satire",
+    "description": "German memes, ironic content, absurd humor, and satire.",
+    "subreddits": [
+      "ich_iel",
+      "hessich_iel",
+      "LTB_iel",
+      "deutschememes",
+      "Berliner_memes",
+      "aberBitteLaminiert",
+      "asozialesnetzwerk",
+      "OkBrudiMongo",
+      "schkreckl",
+      "wortwitzkasse",
+      "wasletztestern",
+      "wasletzterezension",
+      "NichtDieTagespresse",
+      "satire_de_en",
+      "GermansGoneWild",
+      "ichbin14unddasisttief"
+    ]
+  },
+  {
+    "cluster": "Politics, Society & Ideology",
+    "description": "German politics, political parties, activism, and social debates.",
+    "subreddits": [
+      "politik",
+      "ich_politik",
+      "PolitikBRD",
+      "DIE_LINKE",
+      "Kommunismus",
+      "antiarbeit",
+      "Klimawandel",
+      "Klimagerechtigkeit",
+      "umwelt_de",
+      "Verkehrswende",
+      "OeffentlicherDienst",
+      "GoldenerAluhut"
+    ]
+  },
+  {
+    "cluster": "Finance, Careers & Economics",
+    "description": "Personal finance, investing, macroeconomics, taxes, and professional life.",
+    "subreddits": [
+      "Finanzen",
+      "Aktien",
+      "Immobilieninvestments",
+      "Normalverdiener",
+      "Wirtschaftsweise",
+      "Energiewirtschaft",
+      "Steuern",
+      "arbeitsleben",
+      "Azubis",
+      "InformatikKarriere",
+      "selbststaendig",
+      "mauerstrassenwetten",
+      "CapitolVersicherungAG"
+    ]
+  },
+  {
+    "cluster": "Technology, IT & Engineering",
+    "description": "Computing, hardware, electronics, IT knowledge, and advanced technologies.",
+    "subreddits": [
+      "de_EDV",
+      "PCGamingDE",
+      "PCBaumeister",
+      "Elektroinstallation",
+      "technologie",
+      "KI_Welt",
+      "informatik"
+    ]
+  },
+  {
+    "cluster": "Transportation, Mobility & Vehicles",
+    "description": "Cars, bikes, trains, aviation, and everyday mobility topics.",
+    "subreddits": [
+      "Fahrrad",
+      "automobil",
+      "autobloed",
+      "TuningVerbrechen",
+      "RoestetMeinAuto",
+      "Elektroautos",
+      "MotorradDeutschland",
+      "deutschebahn",
+      "bahn",
+      "LuftRaum",
+      "Fuehrerschein",
+      "Falschparker"
+    ]
+  },
+  {
+    "cluster": "Food, Cooking & Household",
+    "description": "Everyday cooking, recipes, food culture, organization, and home life.",
+    "subreddits": [
+      "Kochen",
+      "Backen",
+      "keinstresskochen",
+      "vegetarischDE",
+      "VeganDE",
+      "kantine",
+      "kannmandasnochessen",
+      "SchnitzelVerbrechen",
+      "Leberkasverbrechen",
+      "Doener",
+      "Doenerverbrechen",
+      "SpeziVerbrechenDE",
+      "Kleiderschrank",
+      "Einrichtungstipps",
+      "wohnkultur",
+      "wohnen",
+      "Hausbau",
+      "Canbau",
+      "Garten",
+      "Balkonkraftwerk"
+    ]
+  },
+  {
+    "cluster": "Regional & Local Communities",
+    "description": "City-based, state-based, and regional identity communities in German-speaking areas.",
+    "subreddits": [
+      "frankfurt",
+      "Leipzig",
+      "dresden",
+      "karlsruhe",
+      "bavaria",
+      "wien",
+      "VfBStuttgart",
+      "BayernMunich",
+      "borussiadortmund",
+      "eintracht",
+      "MannausSachsen",
+      "RentnerfahreninDinge",
+      "rentnerzeigenaufdinge"
+    ]
+  },
+  {
+    "cluster": "Science, Knowledge & Education",
+    "description": "Academic learning, research, history, science, documentaries, and reading.",
+    "subreddits": [
+      "Studium",
+      "abitur",
+      "WissenIstMacht",
+      "Wissenschaft",
+      "Weltraum",
+      "Geschichte",
+      "GeschichtsMaimais",
+      "Dokumentationen",
+      "buecher"
+    ]
+  },
+  {
+    "cluster": "Lifestyle, Relationships & Personal Life",
+    "description": "Relationships, parenting, gender discussions, fitness, self-expression.",
+    "subreddits": [
+      "beziehungen",
+      "FragtMaenner",
+      "FragNeFrau",
+      "Eltern",
+      "Weibsvolk",
+      "FitnessDE",
+      "BeautyDE",
+      "Beichtstuhl",
+      "BinIchDasArschloch"
+    ]
+  },
+  {
+    "cluster": "Pets, Animals & Nature",
+    "description": "Pets, wildlife, nature exploration, and animal-related humor.",
+    "subreddits": [
+      "Katzengruppe",
+      "Gittertiere",
+      "naturfreunde",
+      "PferdeSindKacke"
+    ]
+  },
+  {
+    "cluster": "Media, Entertainment & Pop Culture",
+    "description": "Movies, music, podcasts, creators, streaming, and entertainment content.",
+    "subreddits": [
+      "Filme",
+      "musik",
+      "YouTubeDE",
+      "Twitch_DE",
+      "FestundFlauschig",
+      "WolfgangMSchmitt",
+      "Augenschmaus",
+      "Augenbleiche",
+      "zocken",
+      "de_punk"
+    ]
+  },
+  {
+    "cluster": "Work, Trades & Practical Skills",
+    "description": "Craftsmanship, DIY skills, emergency services, manual professions.",
+    "subreddits": [
+      "Handwerker",
+      "Handarbeiten",
+      "selbermachen",
+      "feuerwehr"
+    ]
+  },
+  {
+    "cluster": "Law, Administration & Institutions",
+    "description": "Legal issues, police, military, emergency services, and administrative institutions.",
+    "subreddits": [
+      "recht",
+      "polizei",
+      "pozilei",
+      "blaulicht",
+      "bundeswehr",
+      "dhl_deutsche_post"
+    ]
+  }
+]
