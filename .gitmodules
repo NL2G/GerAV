@@ -1,2 +1,3 @@
 [submodule "baselines/Valla"]
 	url = https://github.com/lottaKiefer/Valla.git
+	path = baselines/Valla
