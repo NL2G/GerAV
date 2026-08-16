@@ -1,0 +1,22 @@
+model_name = "meta-llama/Llama-3.1-8B-Instruct"
+tokenizer_name = "meta-llama/Llama-3.1-8B-Instruct"
+output_dir = "./paper_checkpoints/mix_reddit_twitter/llama-3.1-8b-instruct"
+
+prompt_template = "Are the following two texts written by the same author?\nText A: {text_a}\nText B: {text_b}\nAnswer: "
+
+dataset = "mix_reddit_twitter"
+
+batch_size = 2
+num_train_epochs = 1
+tuning_seed = 10
+
+lang = "en"
+
+learning_rates = [3e-4]
+weight_decays = [0.01]
+seeds = [42]
+
+do_lora = true
+lora_rs = [128]
+lora_alphas = [32]
+lora_dropouts = [0.0]

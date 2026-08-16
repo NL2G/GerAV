@@ -1,0 +1,22 @@
+model_name = "LSX-UniWue/LLaMmlein_7B_chat"
+tokenizer_name = "LSX-UniWue/LLaMmlein_7B_chat"
+output_dir = "./paper_checkpoints/reddit_cross_domain/LSX-UniWue/LLaMmlein_7B_chat"
+
+prompt_template = "Wurden die folgenden zwei Texte von dem selben Autor verfasst?\nText A: {text_a}\nText B: {text_b}\nAntworte mit 'Ja' oder 'Nein'.\nAntwort: "
+
+dataset = "reddit_cross_domain"
+
+batch_size = 1
+num_train_epochs = 1
+tuning_seed = 10
+
+lang = "en"
+
+learning_rates = [3e-4]
+weight_decays = [0.01]
+seeds = [42]
+
+do_lora = true
+lora_rs = [128]
+lora_alphas = [32]
+lora_dropouts = [0.0]

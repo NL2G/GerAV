@@ -1,0 +1,22 @@
+model_name = "Qwen/Qwen2.5-7B-Instruct"
+tokenizer_name = "Qwen/Qwen2.5-7B-Instruct"
+output_dir = "./paper_checkpoints/reddit_profile_based/qwen-2.5-7b-instruct"
+
+prompt_template = "Are the following two texts written by the same author?\nText A: {text_a}\nText B: {text_b}\nAnswer: "
+
+dataset = "reddit_profile_based"
+
+batch_size = 2
+num_train_epochs = 1
+tuning_seed = 10
+
+lang = "en"
+
+learning_rates = [3e-4]
+weight_decays = [0.01]
+seeds = [42]
+
+do_lora = true
+lora_rs = [128]
+lora_alphas = [32]
+lora_dropouts = [0.0]

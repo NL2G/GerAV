@@ -1,0 +1,22 @@
+model_name = "google/gemma-3-12b-it"
+tokenizer_name = "google/gemma-3-12b-it"
+output_dir = "./paper_checkpoints/reddit_cross_domain/gemma-3-12b-it"
+
+prompt_template = "Are the following two texts written by the same author?\nText A: {text_a}\nText B: {text_b}\nAnswer: "
+
+dataset = "reddit_cross_domain"
+
+batch_size = 1
+num_train_epochs = 1
+tuning_seed = 10
+
+lang = "en"
+
+learning_rates = [3e-4]
+weight_decays = [0.01]
+seeds = [42]
+
+do_lora = true
+lora_rs = [128]
+lora_alphas = [32]
+lora_dropouts = [0.0]

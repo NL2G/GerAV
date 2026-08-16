@@ -1,7 +1,5 @@
 import os
 import sys
-#os.environ["PYTHONPATH"] = "/home/kiefer/alias_share/git_iua/authorship_attribution"
-#sys.path.insert(0, "/home/kiefer/alias_share/git_iua/authorship_attribution")
 import argparse
 import datetime
 import gc
@@ -125,10 +123,7 @@ class MetricEvaluator:
         return data
 
     def evaluate(self, num_samples=500, seed=42, output_dir="thresholds"):
-        #datasets = [self.save_load(DATASET_DICT[ds_name])['test'].shuffle(seed=seed).select(range(num_samples)) for ds_name in self.dataset_list]
-        #datasets = [self.load_jsonl_dataset("/home/lotta_kiefer/alias_share/first_paper/data/mixed/validation.jsonl")]
-        #datasets = [self.load_jsonl_dataset("/home/kiefer/alias_share/corpus_reader_for_av/so15_trump/train_files_new/sky_val_min300_all_messages.jsonl")]
-        datasets = [self.load_jsonl_dataset("/home/lotta_kiefer/alias_share/fanfiction_forum/data/story_forum/val.jsonl")]
+        datasets = [self.save_load(DATASET_DICT[ds_name])['test'].shuffle(seed=seed).select(range(num_samples)) for ds_name in self.dataset_list]
         self.dataset_list = ["story_forum"]
         #for ds, ds_name in zip(datasets, self.dataset_list):
         #    print(f"Dataset: {ds_name}")
