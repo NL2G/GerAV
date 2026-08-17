@@ -8,7 +8,6 @@ from datasets import Dataset, DatasetDict
 
 import numpy as np
 import pandas as pd
-import sienna
 from sklearn.model_selection import train_test_split
 
 
@@ -106,7 +105,7 @@ def build_pairs(
 def main():
 
     parser = ArgumentParser()
-    parser.add_argument("--in_file", type=Path, required=True)
+    parser.add_argument("--in_file", type=Path, required=True) #path to the filter_twitter.py output csv
     parser.add_argument("--out_dir", type=Path, required=True)
     args = parser.parse_args()
 
