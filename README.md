@@ -43,6 +43,8 @@ python data/preprocessing/twitter/twitter_pair_sampling.py \
 
 ### Training
 
+#### 1. Lora-Tuning
+
 ```bash
 python training/train.py --config lora_configs/configs_reddit_in_domain/qwen-2.5-7b-instruct.toml
 ```
@@ -52,6 +54,19 @@ For cluster training:
 ```bash
 sbatch slurm_training.sh
 ```
+
+#### 2. Valla Baselines
+
+This part of the code is based on and adapted to our GerAV benchmark from the repository belonging to Tyo et al. (2022): https://github.com/JacobTyo/Valla.git. Please refer to the required setup and environment configuration as described in the original repository before running the baslines. 
+
+To run a basline:
+```bash
+python baslines/Valla/run_baselines.py \
+    --data_path "path/to/your/dataset" \
+    --new_root "dataset_name" \
+    --models ngram ppm adh sbert
+```
+specifying which models to train on which dataset. 
 
 ### Evaluation
 
