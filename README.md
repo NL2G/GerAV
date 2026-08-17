@@ -19,6 +19,28 @@
 
 ## Usage
 
+### Dataset Creation
+
+#### 1. Twitter
+
+Get access to the original dataset from:
+https://zenodo.org/records/7528718
+and store the files locally.
+
+For preprocessing and filtering:
+```bash
+python data/preprocessing/twitter/filter_twitter.py \
+    --input "path/to/original/files" \
+    --output "path/to/store/output/csv"
+```
+
+For AV pair sampling:
+```bash
+python data/preprocessing/twitter/twitter_pair_sampling.py \
+    --in_file "path/to/twitter_filtering/output.csv" \
+    --out_dir "path/to/store/twitter/pairs"
+```
+
 ### Training
 
 ```bash
