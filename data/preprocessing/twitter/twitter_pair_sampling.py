@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from collections import defaultdict
 from typing import Any
+from datasets import Dataset, DatasetDict
 
 import numpy as np
 import pandas as pd
@@ -197,30 +198,31 @@ def main():
 
     # create datasets for each split
 
+    datasets = {}
+
     for split_name, split_authors in splits.items():
 
         logging.info(
             f"Creating {split_name} dataset"
         )
 
-        dataset = build_pairs(
+        pairs = build_pairs(
             split_authors,
             author_texts,
         )
 
-        sienna.save(
-            dataset,
-            args.out_dir /
-            f"{split_name}.jsonl",
-        )
+        datasets[split_name] = Dataset.from_list(pairs)
 
         logging.info(
-            f"{split_name}: {len(dataset)} pairs"
+            f"{split_name}: {len(pairs)} pairs"
         )
 
+    dataset_dict = DatasetDict(datasets)
+
+    dataset_dict.save_to_disk(args.out_dir)
 
     logging.info(
-        "Finished creating datasets."
+        f"Saved dataset to {args.out_dir}"
     )
 
 

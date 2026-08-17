@@ -6,8 +6,8 @@ from pathlib import Path
 import random
 from typing import Any
 import polars as pl
-import sienna
 from sklearn.model_selection import train_test_split
+from datasets import Dataset, DatasetDict
 
 import numpy as np
 from collections import defaultdict
@@ -386,7 +386,14 @@ def main():
         f"train/validation/test: {len(train_users)}/{len(val_users)}/{len(test_users)}"
     )
 
-# create AV datasets
+
+
+    # create AV datasets
+
+    profile_datasets = {}
+    in_domain_datasets = {}
+    cross_domain_datasets = {}
+
     for split_name, split_users in [
         ("train", train_users),
         ("validation", val_users),
@@ -394,42 +401,87 @@ def main():
     ]:
         logging.info(f"Processing {split_name} split")
 
-        #  1. create profile-based datasets
+        # Profile-based
         profile_dataset = profile_based_dataset_token_ratio_len_dist(
             split_users,
             grouped_df,
         )
 
-        sienna.save(
-            profile_dataset.to_serializable(),
-            args.out_dir / f"{split_name}_profile_based.jsonl",
+        profile_datasets[split_name] = Dataset.from_list(
+            profile_dataset.to_serializable()
         )
 
-        # 2. create in-domain datasets
+        logging.info(
+            f"{split_name}_profile_based: "
+            f"{len(profile_dataset.post_pairs)} pairs"
+        )
+
+        # In-domain
         in_domain_dataset = users_to_dataset(
             split_users,
             grouped_df,
             domain_mode="in_domain",
         )
 
-        sienna.save(
-            in_domain_dataset.to_serializable(),
-            args.out_dir / f"{split_name}_in_domain.jsonl",
+        in_domain_datasets[split_name] = Dataset.from_list(
+            in_domain_dataset.to_serializable()
         )
 
-        # 3. create cross-domain datasets
+        logging.info(
+            f"{split_name}_in_domain: "
+            f"{len(in_domain_dataset.post_pairs)} pairs"
+        )
+
+        # cross-domain
         cross_domain_dataset = users_to_dataset(
             split_users,
             grouped_df,
             domain_mode="cross_domain",
         )
 
-        sienna.save(
-            cross_domain_dataset.to_serializable(),
-            args.out_dir / f"{split_name}_cross_domain.jsonl",
+        cross_domain_datasets[split_name] = Dataset.from_list(
+            cross_domain_dataset.to_serializable()
         )
 
-    logging.info("Finished creating all datasets.")
+        logging.info(
+            f"{split_name}_cross_domain: "
+            f"{len(cross_domain_dataset.post_pairs)} pairs"
+        )
+
+
+    # Convert to DatasetDicts
+    profile_dataset_dict = DatasetDict(profile_datasets)
+    in_domain_dataset_dict = DatasetDict(in_domain_datasets)
+    cross_domain_dataset_dict = DatasetDict(cross_domain_datasets)
+
+
+    # Save each dataset
+    profile_dataset_dict.save_to_disk(
+        args.out_dir / "profile_based"
+    )
+
+    in_domain_dataset_dict.save_to_disk(
+        args.out_dir / "in_domain"
+    )
+
+    cross_domain_dataset_dict.save_to_disk(
+        args.out_dir / "cross_domain"
+    )
+
+    logging.info(
+        f"Saved profile-based dataset to "
+        f"{args.out_dir / 'profile_based'}"
+    )
+
+    logging.info(
+        f"Saved in-domain dataset to "
+        f"{args.out_dir / 'in_domain'}"
+    )
+
+    logging.info(
+        f"Saved cross-domain dataset to "
+        f"{args.out_dir / 'cross_domain'}"
+    )
     
 
 if __name__ == "__main__":
