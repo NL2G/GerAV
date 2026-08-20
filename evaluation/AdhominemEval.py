@@ -72,7 +72,7 @@ class AVDataset(BaseAVDataset):
 
 class ADHOMINEM:
     def __init__(self, model_type):
-        # add paths to model.torch adhominem files here
+        # add paths to your model.torch adhominem files here
         self.model_paths = {
             "twitter": "",
             "cross": "",
@@ -81,13 +81,13 @@ class ADHOMINEM:
             "mixed": ""
         }
 
-        # add paths to train.jsonl files here
+        # add paths to your train data files here
         self.train_paths = {
-            "twitter": "/data/twitter/train.jsonl",
-            "cross": "/data/cross_domain/train.jsonl",
-            "in": "/data/in_domain/train.jsonl",
-            "profile": "/data/profile_based/train.jsonl",
-            "mixed": "/data/mixed/train.jsonl"
+            "twitter": "",
+            "cross": "",
+            "in": "",
+            "profile": "",
+            "mixed": ""
         }
 
 
@@ -199,5 +199,5 @@ class ADHOMINEM:
 
         # Convert probs to binary preds
         binary_preds = [1 if p >= threshold else 0 for p in all_probas]
-        return all_probas, binary_preds
+        return binary_preds, all_probas, None
 

@@ -17,7 +17,7 @@ class GerAV:
                  seed = 42,
                  manual_checkpoint_path = None,
                  debug = False, 
-                 custom_threshold = 0,
+                 threshold = 0,
                  gpt_mode = False,
                  use_lip = False,
                  use_lip_ger = False,
@@ -34,7 +34,7 @@ class GerAV:
 
         self.config = toml.load(open(config_path, 'r'))
 
-        self.custom_threshold = custom_threshold
+        self.threshold = threshold
 
         self.gpt_mode = gpt_mode
         if self.gpt_mode:
@@ -89,7 +89,7 @@ class GerAV:
                             model=self.config["model_name"],
                             tokenizer=self.config["model_name"],
                         )
-            self.tokenizer = self.llm.get_tokenizer()   
+            self.tokenizer = self.llm.get_tokenizer()
             self.max_len = self.llm.llm_engine.model_config.max_model_len
             self.debug = debug
 
@@ -109,8 +109,8 @@ class GerAV:
                             enable_lora=True,
                             max_lora_rank=128
                         )
-            
-            self.tokenizer = self.llm.get_tokenizer()   
+
+            self.tokenizer = self.llm.get_tokenizer()
             self.max_len = self.llm.llm_engine.model_config.max_model_len
             self.debug = debug
 
@@ -134,12 +134,12 @@ class GerAV:
                 tokens_1[i] = tokens_1[i][:self.max_len // 2]
             if len(tokens_2[i]) > self.max_len // 2:
                 tokens_2[i] = tokens_2[i][:self.max_len // 2]
-            
+
         i1_trunc = [self.tokenizer.decode(t) for t in tokens_1]
         i2_trunc = [self.tokenizer.decode(t) for t in tokens_2]
 
         return i1_trunc, i2_trunc
-    
+
     def __call__(self, i1, i2):
         # if i1 or i2 are numpy arrays, convert to lists
         if isinstance(i1, np.ndarray):
@@ -155,9 +155,9 @@ class GerAV:
             else:
                 raise ValueError("Input lists must be of the same length or one of them must be of length 1.")
 
-        print("Current input:", i1, i2) 
+        print("Current input:", i1, i2)
         if self.gpt_mode:
-            inputs = [self.template.format(text_a=msg1, text_b=msg2) for msg1, msg2 in zip(i1, i2)]  
+            inputs = [self.template.format(text_a=msg1, text_b=msg2) for msg1, msg2 in zip(i1, i2)]
             out = []
             for idx, msg in tqdm(enumerate(inputs)):
                 response = self.client.responses.create(
@@ -206,17 +206,17 @@ class GerAV:
                             no_probs.append(np.exp(v.logprob))
                             no_cnt += 1
                             found = True
-                
+
                 if len(yes_probs) > 0 or len(no_probs) > 0:
                     probs.append((sum(yes_probs) - sum(no_probs))/(yes_cnt + no_cnt))
-                
+
                 else:
                     print(f"No logprobs for output: {t.outputs[0].text.strip()}")
                     probs.append(0)
-    
+
             out = [t.outputs[0].text.strip() for t in out]
-            if self.custom_threshold is not None:
-                threshold = self.custom_threshold
+            if self.threshold is not None:
+                threshold = self.threshold
             else:
                 return probs, generated_text
             

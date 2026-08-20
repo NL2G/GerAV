@@ -23,7 +23,7 @@ def contrastive_predict(model, i1, i2, kernel_fn, threshold=0.5, distance_metric
 
 class SBERT:
     def __init__(self, model_type):
-        # add paths to sber model folders here
+        # add paths to your sbert model folders here
         self.twitter_model = ""
         self.cross_model = ""
         self.in_model = ""
@@ -59,4 +59,4 @@ class SBERT:
             threshold=threshold,
             distance_metric=self.distance_metric
         )
-        return similarities, preds
+        return preds, similarities, None

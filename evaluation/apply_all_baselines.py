@@ -12,6 +12,10 @@ import os
 from GerAV import GerAV
 from MStyleDistance import MStyleDistance
 from MultilingualStyleRepresentation import MultilingualStyleRepresentation
+from PPMEval import PPM
+from SbertEval import SBERT
+from AdhominemEval import ADHOMINEM
+from FeatureDifferenceEval import FeatureDifference
 
 def get_threshold(model_name):
     threshold_file = f"./thresholds/best-threshold_{model_name}.txt"
@@ -31,7 +35,31 @@ MODEL_DICT =  {
 
     "m_style_distance_mixed": (MStyleDistance, [], {"threshold": get_threshold("m_style_distance_mixed")}),
     "msr_mixed": (MultilingualStyleRepresentation, [], {"threshold": get_threshold("msr_mixed")}),
+    
+    "ngram_twitter": (FeatureDifference, [], {"model_type": "twitter"}),
+    "ngram_reddit_in_domain": (FeatureDifference, [], {"model_type": "in"}),
+    "ngram_reddit_cross_domain": (FeatureDifference, [], {"model_type": "cross"}),
+    "ngram_reddit_profile_based": (FeatureDifference, [], {"model_type": "profile"}),
+    "ngram_mixed": (FeatureDifference, [], {"model_type": "mixed"}),
 
+    "ppm_twitter": (PPM, [], {"model_type": "twitter"}),
+    "ppm_reddit_in_domain": (PPM, [], {"model_type": "in"}),
+    "ppm_reddit_cross_domain": (PPM, [], {"model_type": "cross"}),
+    "ppm_reddit_profile_based": (PPM, [], {"model_type": "profile"}),
+    "ppm_mixed": (PPM, [], {"model_type": "mixed"}),
+
+    "sbert_twitter": (SBERT, [], {"model_type": "twitter"}),
+    "sbert_reddit_in_domain": (SBERT, [], {"model_type": "in"}),
+    "sbert_reddit_cross_domain": (SBERT, [], {"model_type": "cross"}),
+    "sbert_reddit_profile_based": (SBERT, [], {"model_type": "profile"}),
+    "sbert_mixed": (SBERT, [], {"model_type": "mixed"}),
+
+    "adhominem_twitter": (ADHOMINEM, [], {"model_type": "twitter"}),
+    "adhominem_reddit_in_domain": (ADHOMINEM, [], {"model_type": "in"}),
+    "adhominem_reddit_cross_domain": (ADHOMINEM, [], {"model_type": "cross"}),
+    "adhominem_reddit_profile_based": (ADHOMINEM, [], {"model_type": "profile"}),
+    "adhominem_mixed": (ADHOMINEM, [], {"model_type": "mixed"}),
+    
     "baseline_gemma_3_12b_it": (GerAV, [], {"base_path": "./lora_configs/twitter","tuned_model": "gemma-3-12b-it", "tune_dataset": "twitter", "seed": 42, "baseline": True, "custom_threshold": None}),
     "baseline_llama-3.1-8b-instruct": (GerAV, [], {"base_path": "./lora_configs/twitter","tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True, "custom_threshold": None}),
     "baseline_llama-3.2-3b-instruct": (GerAV, [], {"base_path": "./lora_configs/twitter","tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True, "custom_threshold": None}),
@@ -70,7 +98,11 @@ MODEL_DICT =  {
 }
 
 DATASET_DICT = {
-    "twitter": "your dataset here"
+    "mixed": "your dataset here",
+    "twitter": "your dataset here",
+    "reddit_in_domain": "your dataset here",
+    "reddit_cross_domain": "your dataset here",
+    "reddit_profile_based": "your dataset here",
 }
 
 
@@ -130,6 +162,7 @@ class MetricEvaluator:
                     continue
 
             print(f"Evaluating model: {model_name}")
+            threshold = self.get_threshold(model_name)
             try:
                 model = MODEL_DICT[model_name][0](*MODEL_DICT[model_name][1], **MODEL_DICT[model_name][2])
             except Exception as e:
@@ -139,7 +172,7 @@ class MetricEvaluator:
             all_results = []
             for ds, dataset_name in zip(datasets, self.dataset_list):
                 try:
-                    preds, probs, generated_text = model([d["post_a"]["text"] for d in ds], [d["post_b"]["text"] for d in ds])
+                    preds, probs, generated_text = model([d["post_a"]["text"] for d in ds], [d["post_b"]["text"] for d in ds], threshold=threshold)
                     res = self.compute_stats(ds['label'], preds, probs)
 
                     print(f"Results for dataset {dataset_name} with model {model_name}: {res}")
@@ -150,11 +183,11 @@ class MetricEvaluator:
                     res["true_labels"] = [d["label"] for d in ds]
                     res["generated_text"] = generated_text
 
-                    all_results.append(res) 
+                    all_results.append(res)
                 except Exception as e:
                     print(f"Error evaluating dataset {dataset_name} with model {model_name}: \n{e}")
                     continue
-            
+
             
             # Clean up model and free vram
             del model

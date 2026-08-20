@@ -12,7 +12,7 @@ from valla.utils.eval_metrics import threshold_search
 
 class FeatureDifference:
     def __init__(self, model_type):
-        #add paths to ngram model folders here
+        #add paths to your ngram model folders here
         self.twitter_model = ""
         self.cross_model = ""
         self.in_model = ""
@@ -60,4 +60,4 @@ class FeatureDifference:
         probs = self.clf.predict_proba(XX_test)[:, 1]
         preds = (probs >= threshold).astype(int)
 
-        return probs, preds.tolist()
+        return preds.tolist(), probs, None

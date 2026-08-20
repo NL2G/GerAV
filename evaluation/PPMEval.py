@@ -19,7 +19,7 @@ from valla.utils.eval_metrics import threshold_search
 
 class PPM:
     def __init__(self, model_type, ppm_order=5, num_workers=4):
-        #add paths to ppm model folders here
+        #add paths to your ppm model folders here
         self.twitter_model = ""
         self.cross_model = ""
         self.in_model = ""
@@ -66,4 +66,4 @@ class PPM:
         #print(probas_and_labels)
         probas = [p for p in probas_and_labels]
         preds = (np.array(probas) >= threshold).astype(int)
-        return probas, preds.tolist()
+        return preds.tolist(), probas, None
