@@ -1,66 +1,97 @@
-import os
-import sys
 import argparse
-import datetime
 import gc
-import torch
-from tqdm import tqdm
-#from datasets import load_from_disk, load_dataset
-import pandas as pd
-import json
-import numpy as np
 import sklearn
-from sklearn.metrics import roc_curve
+import torch
+from datasets import load_from_disk, load_dataset
+import numpy as np
 
-#from av_baselines.GerAV import GerAV
-#from av_baselines.MStyleDistance import MStyleDistance
-#from FeatureDifferenceEval import FeatureDifference
-#from PPMEval import PPM
-#from XGBoost import XGBOOST
+from GerAV import GerAV
+from MStyleDistance import MStyleDistance
+from MultilingualStyleRepresentation import MultilingualStyleRepresentation
+from PPMEval import PPM
 from SbertEval import SBERT
-#from MSR import MSR
-#from AdhominemApply2 import ADHOMINEM
-#from valla.methods.FeatureDifferenceGerman import (vectorize, CustomTfIdfTransformer)
-#from valla.methods.PPM_AV import (eval_sample, distance)
-#from valla.methods.torched_AdHominem import (AdHominem, AVDataset as BaseAVDataset, load_model_from_disk, evaluate_model, modified_contrastive_loss)
+from AdhominemEval import ADHOMINEM
+from FeatureDifferenceEval import FeatureDifference
 
 
 
-'''    "m_style_distance_twitter": (MStyleDistance, [], {"threshold": "twitter"}),
-    "m_style_distance_reddit": (MStyleDistance, [], {"threshold": "reddit"}),
-    "gerav__gemma_3_1b_it__twitter": (GerAV, [], {"tuned_model": "gemma-3-1b-it", "tune_dataset": "twitter", "seed": 42}),
-    "gerav__gemma_3_4b_it__twitter": (GerAV, [], {"tuned_model": "gemma-3-4b-it", "tune_dataset": "twitter", "seed": 42}),
-    #"gerav__gemma_3_12b_it__twitter": (GerAV, [], {"tuned_model": "gemma-3-12b-it", "tune_dataset": "twitter", "seed": 42}),
-    "gerav__llama-3.1-8b-instruct__twitter": (GerAV, [], {"tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "twitter", "seed": 42}),
-    "gerav__llama-3.2-1b-instruct__twitter": (GerAV, [], {"tuned_model": "llama-3.2-1b-instruct", "tune_dataset": "twitter", "seed": 42}),
-    "gerav__llama-3.2-3b-instruct__twitter": (GerAV, [], {"tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "twitter", "seed": 42}),
-    "gerav__qwen-2.5-3b-instruct__twitter": (GerAV, [], {"tuned_model": "qwen-2.5-3b-instruct", "tune_dataset": "twitter", "seed": 42}),
-    "gerav__qwen-2.5-7b-instruct__twitter": (GerAV, [], {"tuned_model": "qwen-2.5-7b-instruct", "tune_dataset": "twitter", "seed": 42}),
-    "gemma_3_1b_it": (GerAV, [], {"tuned_model": "gemma-3-1b-it", "tune_dataset": "twitter", "seed": 42, "baseline": True}),
-    "gemma_3_4b_it": (GerAV, [], {"tuned_model": "gemma-3-4b-it", "tune_dataset": "twitter", "seed": 42, "baseline": True}),
-    "gemma_3_12b_it": (GerAV, [], {"tuned_model": "gemma-3-12b-it", "tune_dataset": "twitter", "seed": 42, "baseline": True}),
-    "llama-3.1-8b-instruct": (GerAV, [], {"tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True}),
-    "llama-3.2-1b-instruct": (GerAV, [], {"tuned_model": "llama-3.2-1b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True}),
-    "llama-3.2-3b-instruct": (GerAV, [], {"tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True}),
-    "qwen-2.5-3b-instruct": (GerAV, [], {"tuned_model": "qwen-2.5-3b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True}),
-    "qwen-2.5-7b-instruct": (GerAV, [], {"tuned_model": "qwen-2.5-7b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True}),
+
 MODEL_DICT =  {
+    "gpt-5": (GerAV, [], {"gpt_mode": True, "base_path": "./lora_configs/configs_mix", "baseline": True, "tuned_model":"gpt-5"}),
+    "gpt-5-lip": (GerAV, [], {"gpt_mode": True, "base_path": "./lora_configs/configs_mix", "baseline": True, "tuned_model":"gpt-5", "use_lip": True}),
+    "gpt-5-lip-ger": (GerAV, [], {"gpt_mode": True, "base_path": "./lora_configs/configs_mix", "baseline": True, "tuned_model":"gpt-5", "use_lip_ger": True}),
+    "gpt-5-zero-fast": (GerAV, [], {"gpt_mode": True, "base_path": "./lora_configs/configs_mix", "baseline": True, "tuned_model":"gpt-5", "use_zero_fast": True}),
+
+    "m_style_distance_mixed": (MStyleDistance, []),
+    "msr_mixed": (MultilingualStyleRepresentation, []),
+    
     "ngram_twitter": (FeatureDifference, [], {"model_type": "twitter"}),
+    "ngram_reddit_in_domain": (FeatureDifference, [], {"model_type": "in"}),
+    "ngram_reddit_cross_domain": (FeatureDifference, [], {"model_type": "cross"}),
+    "ngram_reddit_profile_based": (FeatureDifference, [], {"model_type": "profile"}),
+    "ngram_mixed": (FeatureDifference, [], {"model_type": "mixed"}),
+
     "ppm_twitter": (PPM, [], {"model_type": "twitter"}),
+    "ppm_reddit_in_domain": (PPM, [], {"model_type": "in"}),
+    "ppm_reddit_cross_domain": (PPM, [], {"model_type": "cross"}),
+    "ppm_reddit_profile_based": (PPM, [], {"model_type": "profile"}),
+    "ppm_mixed": (PPM, [], {"model_type": "mixed"}),
+
     "sbert_twitter": (SBERT, [], {"model_type": "twitter"}),
-    "xgb_twitter": (XGBOOST, [], {"model_type": "twitter"}),
-    "adhominem_twitter": (ADHOMINEM, [], {"model_type": "twitter"})'''
-MODEL_DICT =  {
-    "sbert_storyforum": (SBERT, [], {"model_type": "story_forum"}),
+    "sbert_reddit_in_domain": (SBERT, [], {"model_type": "in"}),
+    "sbert_reddit_cross_domain": (SBERT, [], {"model_type": "cross"}),
+    "sbert_reddit_profile_based": (SBERT, [], {"model_type": "profile"}),
+    "sbert_mixed": (SBERT, [], {"model_type": "mixed"}),
+
+    "adhominem_twitter": (ADHOMINEM, [], {"model_type": "twitter"}),
+    "adhominem_reddit_in_domain": (ADHOMINEM, [], {"model_type": "in"}),
+    "adhominem_reddit_cross_domain": (ADHOMINEM, [], {"model_type": "cross"}),
+    "adhominem_reddit_profile_based": (ADHOMINEM, [], {"model_type": "profile"}),
+    "adhominem_mixed": (ADHOMINEM, [], {"model_type": "mixed"}),
+    
+    "baseline_gemma_3_12b_it": (GerAV, [], {"base_path": "./lora_configs/twitter","tuned_model": "gemma-3-12b-it", "tune_dataset": "twitter", "seed": 42, "baseline": True, "custom_threshold": None}),
+    "baseline_llama-3.1-8b-instruct": (GerAV, [], {"base_path": "./lora_configs/twitter","tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True, "custom_threshold": None}),
+    "baseline_llama-3.2-3b-instruct": (GerAV, [], {"base_path": "./lora_configs/twitter","tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True, "custom_threshold": None}),
+    "baseline_qwen-2.5-7b-instruct": (GerAV, [], {"base_path": "./lora_configs/twitter","tuned_model": "qwen-2.5-7b-instruct", "tune_dataset": "twitter", "seed": 42, "baseline": True, "custom_threshold": None}),
+    "baseline_lammlein": (GerAV, [], {"base_path": "./lora_configs/twitter","tuned_model": "lammlein", "tune_dataset": "twitter", "seed": 42, "baseline": True, "custom_threshold": None}),
+    
+    "gerav___llama-3.2-3b-instruct___twitter": (GerAV, [], {"base_path": "./lora_configs/twitter", "tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "twitter", "seed": 42, "custom_threshold": None}),
+    "gerav___llama-3.2-3b-instruct___reddit_in_domain": (GerAV, [], {"base_path": "./lora_configs/reddit_in_domain", "tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "reddit_in_domain", "seed": 42, "custom_threshold": None}),
+    "gerav___llama-3.2-3b-instruct___reddit_cross_domain": (GerAV, [], {"base_path": "./lora_configs/reddit_cross_domain", "tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "reddit_cross_domain", "seed": 42, "custom_threshold": None}),
+    "gerav___llama-3.2-3b-instruct___reddit_profile_based": (GerAV, [], {"base_path": "./lora_configs/reddit_profile", "tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "reddit_profile_based", "seed": 42, "custom_threshold": None}),
+    "gerav___llama-3.2-3b-instruct___mixed": (GerAV, [], {"base_path": "./lora_configs/mix", "tuned_model": "llama-3.2-3b-instruct", "tune_dataset": "mix_reddit_twitter", "seed": 42, "custom_threshold": None}),
+
+    "gerav___llama-3.1-8b-instruct___twitter": (GerAV, [], {"base_path": "./lora_configs/rerun_configs_twitter", "tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "twitter", "seed": 42, "custom_threshold": None}),
+    "gerav___llama-3.1-8b-instruct___reddit_in_domain": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_in_domain", "tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "reddit_in_domain", "seed": 42, "custom_threshold": None}),
+    "gerav___llama-3.1-8b-instruct___reddit_cross_domain": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_cross_domain", "tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "reddit_cross_domain", "seed": 42, "custom_threshold": None}),
+    "gerav___llama-3.1-8b-instruct___reddit_profile_based": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_profile", "tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "reddit_profile_based", "seed": 42, "custom_threshold": None}),
+    "gerav___llama-3.1-8b-instruct___mixed": (GerAV, [], {"base_path": "./lora_configs/configs_mix", "tuned_model": "llama-3.1-8b-instruct", "tune_dataset": "mix_reddit_twitter", "seed": 42, "debug": False, "custom_threshold": None}),
+
+    "gerav___qwen-2.5-7b-instruct___twitter": (GerAV, [], {"base_path": "./lora_configs/rerun_configs_twitter", "tuned_model": "qwen-2.5-7b-instruct", "tune_dataset": "twitter", "seed": 42, "custom_threshold": None}),
+    "gerav___qwen-2.5-7b-instruct___reddit_in_domain": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_in_domain", "tuned_model": "qwen-2.5-7b-instruct", "tune_dataset": "reddit_in_domain", "seed": 42, "custom_threshold": None}),
+    "gerav___qwen-2.5-7b-instruct___reddit_cross_domain": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_cross_domain", "tuned_model": "qwen-2.5-7b-instruct", "tune_dataset": "reddit_cross_domain", "seed": 42, "custom_threshold": None}),
+    "gerav___qwen-2.5-7b-instruct___reddit_profile_based": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_profile", "tuned_model": "qwen-2.5-7b-instruct", "tune_dataset": "reddit_profile_based", "seed": 42, "custom_threshold": None}),
+    "gerav___qwen-2.5-7b-instruct___mixed": (GerAV, [], {"base_path": "./lora_configs/configs_mix", "tuned_model": "qwen-2.5-7b-instruct", "tune_dataset": "mix_reddit_twitter", "seed": 42, "custom_threshold": None}),
+
+    "gerav___gemma-3-12b-it___twitter": (GerAV, [], {"base_path": "./lora_configs/rerun_configs_twitter", "tuned_model": "gemma-3-12b-it", "tune_dataset": "twitter", "seed": 42, "custom_threshold": None}),
+    "gerav___gemma-3-12b-it___reddit_in_domain": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_in_domain", "tuned_model": "gemma-3-12b-it", "tune_dataset": "reddit_in_domain", "seed": 42, "custom_threshold": None}),
+    "gerav___gemma-3-12b-it___reddit_cross_domain": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_cross_domain", "tuned_model": "gemma-3-12b-it", "tune_dataset": "reddit_cross_domain", "seed": 42, "custom_threshold": None}),
+    "gerav___gemma-3-12b-it___reddit_profile_based": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_profile", "tuned_model": "gemma-3-12b-it", "tune_dataset": "reddit_profile_based", "seed": 42, "custom_threshold": None}),
+    "gerav___gemma-3-12b-it___mixed": (GerAV, [], {"base_path": "./lora_configs/configs_mix", "tuned_model": "gemma-3-12b-it", "tune_dataset": "mix_reddit_twitter", "seed": 42, "custom_threshold": None}),
+
+    "gerav___lammlein___twitter": (GerAV, [], {"base_path": "./lora_configs/twitter", "tuned_model":"lammlein", "tune_dataset": "twitter", "seed": 42, "custom_threshold": 0, "stop_tokens": [" Ja", " Nein", " ja", " nein", "JA", "NEIN"], "positive_token": "Ja", "negative_token": "Nein"}),
+    "gerav___lammlein___reddit_in_domain": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_in_domain", "tuned_model":"lammlein", "tune_dataset": "reddit_in_domain", "seed": 42, "custom_threshold": 0, "stop_tokens": [" Ja", " Nein", " ja", " nein", "JA", "NEIN"], "positive_token": "Ja", "negative_token": "Nein"}),
+    "gerav___lammlein___reddit_cross_domain": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_cross_domain", "tuned_model":"lammlein", "tune_dataset": "reddit_cross_domain", "seed": 42, "custom_threshold": 0, "stop_tokens": [" Ja", " Nein", " ja", " nein", "JA", "NEIN"], "positive_token": "Ja", "negative_token": "Nein"}),
+    "gerav___lammlein___reddit_profile_based": (GerAV, [], {"base_path": "./lora_configs/configs_reddit_profile", "tuned_model":"lammlein", "tune_dataset": "reddit_profile_based", "seed": 42, "custom_threshold": 0, "stop_tokens": [" Ja", " Nein", " ja", " nein", "JA", "NEIN"], "positive_token": "Ja", "negative_token": "Nein"}),
+    "gerav___lammlein___mixed": (GerAV, [], {"base_path": "./lora_configs/configs_mix", "tuned_model":"lammlein", "tune_dataset": "mix_reddit_twitter", "seed": 42, "custom_threshold": 0, "stop_tokens": [" Ja", " Nein", " ja", " nein", "JA", "NEIN"], "positive_token": "Ja", "negative_token": "Nein"}),
 }
 
 DATASET_DICT = {
-    "twitter": "nllg/twitter_final",
-    "reddit": "nllg/reddit_domain_datasets",
-    "reddit_profile": "nllg/reddit_profile_based",
-    #"twitter_old" : "nllg/twitter-av-de-2019"
-    #"twitter": "nllg/twitter_revised",
-    #"reddit": "/ceph/cleiter/ALIAS/reddit-av-preprocessing/data/processed/hf_dataset"
+    "mixed": "your dataset here",
+    "twitter": "your dataset here",
+    "reddit_in_domain": "your dataset here",
+    "reddit_cross_domain": "your dataset here",
+    "reddit_profile_based": "your dataset here",
 }
 
 class MetricEvaluator:
@@ -74,41 +105,6 @@ class MetricEvaluator:
         else:
             self.dataset_list = dataset_list
 
-    def compute_stats(self, labels, preds, probs):
-        '''
-        accuracy = (tp + tn) / (tp + tn + fp + fn)
-        precision = tp / (tp + fp)
-        recall = tp / (tp + fn)
-        f1_score = 2 * tp / (2 * tp + fp + fn)
-        '''
-        accuracy = sklearn.metrics.accuracy_score(labels, preds)
-        precision = sklearn.metrics.precision_score(labels, preds)
-        recall = sklearn.metrics.recall_score(labels, preds)
-        f1_score = sklearn.metrics.f1_score(labels, preds)
-        roc_auc = sklearn.metrics.roc_auc_score(labels, probs)
-        # AUC Metric
-        # Evtl. Pan Workshop metrics
-        return {
-            "accuracy": accuracy,
-            "precision": precision,
-            "recall": recall,
-            "f1_score": f1_score,
-            "roc_auc": roc_auc
-        }
-
-    def compute_stats_org(self, tp, fp, tn, fn):
-        accuracy = (tp + tn) / (tp + tn + fp + fn)
-        precision = tp / (tp + fp)
-        recall = tp / (tp + fn)
-        f1_score = 2 * tp / (2 * tp + fp + fn)
-        # AUC Metric
-        # Evtl. Pan Workshop metrics
-        return {
-            "accuracy": accuracy,
-            "precision": precision,
-            "recall": recall,
-            "f1_score": f1_score
-        }
 
     def save_load(self, dataset):
         try:
@@ -117,37 +113,26 @@ class MetricEvaluator:
             ds = load_dataset(dataset)
         return ds
 
-    def load_jsonl_dataset(self, file_path):
-        with open(file_path, "r") as f:
-            data = [json.loads(line) for line in f]
-        return data
-
     def evaluate(self, num_samples=500, seed=42, output_dir="thresholds"):
-        datasets = [self.save_load(DATASET_DICT[ds_name])['test'].shuffle(seed=seed).select(range(num_samples)) for ds_name in self.dataset_list]
-        self.dataset_list = ["story_forum"]
-        #for ds, ds_name in zip(datasets, self.dataset_list):
-        #    print(f"Dataset: {ds_name}")
-        #    for i in range(10):
-        #        print(ds[i])
- 
-        
+        if num_samples > 0:
+            datasets = [self.save_load(DATASET_DICT[ds_name])['validation'].select(range(num_samples)) for ds_name in
+                        self.dataset_list]
+        else:
+            datasets = [self.save_load(DATASET_DICT[ds_name])['validation'] for ds_name in self.dataset_list]
+
         for model_name in self.model_list:
-            # ignore model if file exists
             import os
-            #if os.path.exists(f"{output_dir}/av_baseline_results_{model_name}_{num_samples}.tsv"):
-            #    print(f"Skipping model {model_name} as results already exist.")
-            #    continue
-            all_results = []
             print(f"Evaluating model: {model_name}")
-            model = MODEL_DICT[model_name][0](*MODEL_DICT[model_name][1], **MODEL_DICT[model_name][2])
+            try:
+                model = MODEL_DICT[model_name][0](*MODEL_DICT[model_name][1], **MODEL_DICT[model_name][2])
+            except Exception as e:
+                print(f"Error evaluating model {model_name}: \n{e}")
+                continue
             for ds, dataset_name in zip(datasets, self.dataset_list):
                 labels = [d["label"] for d in ds]
-                if "xg" in model_name:
-                    probas, preds = model.__call__([d["post_a"]["text"] for d in ds], [d["post_b"]["text"] for d in ds], dataset_name, labels)
-                else:
-                    probas, preds = model.__call__([d["post_a"]["text"] for d in ds], [d["post_b"]["text"] for d in ds])
-                print(np.min(probas), np.max(probas))
-                fpr, tpr, thresholds = sklearn.metrics.roc_curve(labels, probas)
+                preds, probs, generated_text = model([d["post_a"]["text"] for d in ds], [d["post_b"]["text"] for d in ds])
+                print(np.min(probs), np.max(probs))
+                fpr, tpr, thresholds = sklearn.metrics.roc_curve(labels, probs)
                 specifity = 1-fpr
                 youden_j = tpr + specifity - 1
                 best_idx = np.argmax(youden_j)
@@ -159,7 +144,7 @@ class MetricEvaluator:
             gc.collect()
             torch.cuda.empty_cache()
 
-            print(f"Best threshold: {best_threshold} with {best_j}")
+            print(f"Best threshold: {best_threshold}")
 
 
             output_path = f"{output_dir}/best-threshold_{model_name}.txt"
@@ -169,8 +154,8 @@ class MetricEvaluator:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate AV baselines")
-    parser.add_argument("--num_samples", type=int, default=1000, help="Number of samples to evaluate")
-    parser.add_argument("--output_dir", type=str, default="thresholds/", help="Directory to save the results")
+    parser.add_argument("--num_samples", type=int, default=0, help="Number of samples to evaluate")
+    parser.add_argument("--output_dir", type=str, default="outputs/thresholds", help="Directory to save the results")
     parser.add_argument("--model_list", type=str, nargs='*', default=None, help="List of models to evaluate")
     parser.add_argument("--dataset_list", type=str, nargs='*', default=None, help="List of datasets to evaluate")
     

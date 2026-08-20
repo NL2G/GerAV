@@ -17,15 +17,6 @@ from SbertEval import SBERT
 from AdhominemEval import ADHOMINEM
 from FeatureDifferenceEval import FeatureDifference
 
-def get_threshold(model_name):
-    threshold_file = f"./thresholds/best-threshold_{model_name}.txt"
-    try:
-        with open(threshold_file, "r") as f:
-            threshold = float(f.read().strip())
-        return threshold
-    except FileNotFoundError:
-        print(f"Threshold file not found for model {model_name}. Using default threshold of 0.")
-        return 0
 
 MODEL_DICT =  {
     "gpt-5": (GerAV, [], {"gpt_mode": True, "base_path": "./lora_configs/configs_mix", "baseline": True, "tuned_model":"gpt-5"}),
@@ -33,8 +24,8 @@ MODEL_DICT =  {
     "gpt-5-lip-ger": (GerAV, [], {"gpt_mode": True, "base_path": "./lora_configs/configs_mix", "baseline": True, "tuned_model":"gpt-5", "use_lip_ger": True}),
     "gpt-5-zero-fast": (GerAV, [], {"gpt_mode": True, "base_path": "./lora_configs/configs_mix", "baseline": True, "tuned_model":"gpt-5", "use_zero_fast": True}),
 
-    "m_style_distance_mixed": (MStyleDistance, [], {"threshold": get_threshold("m_style_distance_mixed")}),
-    "msr_mixed": (MultilingualStyleRepresentation, [], {"threshold": get_threshold("msr_mixed")}),
+    "m_style_distance_mixed": (MStyleDistance, [],),
+    "msr_mixed": (MultilingualStyleRepresentation, [],),
     
     "ngram_twitter": (FeatureDifference, [], {"model_type": "twitter"}),
     "ngram_reddit_in_domain": (FeatureDifference, [], {"model_type": "in"}),
@@ -140,6 +131,15 @@ class MetricEvaluator:
             ds = load_dataset(dataset)
         return ds
 
+    def get_threshold(self, thresh_dir, model_name):
+        try:
+            with open(thresh_dir, "r") as f:
+                threshold = float(f.read().strip())
+            return threshold
+        except FileNotFoundError:
+            print(f"Threshold file not found for model {model_name}. Using default threshold of 0.")
+            return 0
+
     def evaluate(self, num_samples=500, seed=42, output_dir="outputs"):
         if num_samples > 0:
             datasets = [self.save_load(DATASET_DICT[ds_name])['test'].select(range(num_samples)) for ds_name in self.dataset_list]
@@ -162,7 +162,7 @@ class MetricEvaluator:
                     continue
 
             print(f"Evaluating model: {model_name}")
-            threshold = self.get_threshold(model_name)
+            threshold = self.get_threshold(args.threshold_dir, model_name)
             try:
                 model = MODEL_DICT[model_name][0](*MODEL_DICT[model_name][1], **MODEL_DICT[model_name][2])
             except Exception as e:
@@ -213,6 +213,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate AV baselines")
     parser.add_argument("--num_samples", type=int, default=0, help="Number of samples to evaluate")
     parser.add_argument("--output_dir", type=str, default="outputs/scores", help="Directory to save the results")
+    parser.add_argument("--threshold_dir", type=str, default="outputs/thresholds", help="Directory to save the results")
     parser.add_argument("--model_list", type=str, nargs='*', default=None, help="List of models to evaluate")
     parser.add_argument("--dataset_list", type=str, nargs='*', default=None, help="List of datasets to evaluate")
     parser.add_argument("--overwrite", action='store_true', help="Whether to overwrite existing results")

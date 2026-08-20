@@ -21,7 +21,7 @@
 
 ### Dataset Creation
 
-#### 1. Twitter
+#### Twitter
 
 Get access to the original dataset from:
 https://zenodo.org/records/7528718
@@ -40,10 +40,13 @@ python data/preprocessing/twitter/twitter_pair_sampling.py \
     --in_file "path/to/twitter_filtering/output.csv" \
     --out_dir "path/to/store/twitter/pairs"
 ```
+#### Reddit
+
+#### Mixed
 
 ### Training
 
-#### 1. Lora-Tuning
+#### Lora-Tuning
 
 ```bash
 python training/train.py --config lora_configs/configs_reddit_in_domain/qwen-2.5-7b-instruct.toml
@@ -55,7 +58,7 @@ For cluster training:
 sbatch slurm_training.sh
 ```
 
-#### 2. Valla Baselines
+#### Valla Baselines
 
 This part of the code is based on and adapted to our GerAV benchmark from the repository belonging to Tyo et al. (2022): https://github.com/JacobTyo/Valla.git. Please refer to the required setup and environment configuration as described in the original repository before running the baslines. 
 
@@ -70,15 +73,44 @@ specifying which models to train on which dataset.
 
 ### Evaluation
 
+#### Threshold Tuning
+To tune thresholds on the validation set run after adding your dataset and model paths:
 ```bash
-HF_HOME=${HF_HOME} python av_baselines/apply_all_baselines.py \
+HF_HOME=${HF_HOME} python av_baselines/threshold_tuning.py \
+  --model_list sbert_twitter\
+  --dataset_list twitter \
+  --output_dir outputs/thresholds
+```
+
+#### Performance
+To get scores on the test set run after adding your dataset and model paths:
+```bash
+HF_HOME=${HF_HOME} python av_baselines/evaluate.py \
   --model_list baseline_qwen-2.5-7b-instruct \
   --dataset_list twitter \
   --output_dir outputs/scores
 ```
 
-The model and dataset names used by evaluation are defined in `av_baselines/apply_all_baselines.py`.
+The model and dataset names used by evaluation are defined in `av_baselines/evaluate.py`.
 
+#### Significance
+To generate bootsrap results run
+```bash
+python significance_tests/compute_bootstrap_significance.py \
+  --in_dir "path/to/evaluation/tsv/files" \
+  --out_dir "path/to/save/bootstrap"
+```
+inputting the directory containing the .tsv files with performance scores from the step above and the output directory to save the resulting bootstrap .csv file.
+
+To compare models run
+```bash
+python significance_tests/anaylse_bootstrap_significance.py \
+  --in_file "path/to/bootstrap_results.csv" \
+  --out_dir "path/to/save/rankings"
+```
+
+
+For each dataset, this ranks models by F1 and accuracy and compares adjacent models using the paired bootstrap distributions.
 > Notes on the datasets will follow soon
 
 ## 📖 Citation
