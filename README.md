@@ -10,10 +10,10 @@
 ## Repository structure
 
 - `training/`: fine-tuning pipeline and dataset loaders
+- `baselines/`: code for running Valla baseline models
 - `lora_configs/`: model- and dataset-specific training configs
 - `paper_checkpoints/`: saved checkpoints and tuned models
-- `av_baselines/`: baseline authorship verification evaluation code
-- `evaluation/`: metric and threshold utilities
+- `evaluation/`: threshold tuning and evaluation code
 - `data/`: data preprocessing and dataset construction scripts
 - `slurm_training.sh` and `slurm_eval.sh`: Slurm job entry points
 
@@ -62,7 +62,7 @@ sbatch slurm_training.sh
 
 This part of the code is based on and adapted to our GerAV benchmark from the repository belonging to Tyo et al. (2022): https://github.com/JacobTyo/Valla.git. Please refer to the required setup and environment configuration as described in the original repository before running the baslines. 
 
-To run a basline:
+To run a baseline:
 ```bash
 python baslines/Valla/run_baselines.py \
     --data_path "path/to/your/dataset" \
@@ -94,9 +94,9 @@ HF_HOME=${HF_HOME} python av_baselines/evaluate.py \
 The model and dataset names used by evaluation are defined in `av_baselines/evaluate.py`.
 
 #### Significance
-To generate bootsrap results run
+To generate bootstrap results run
 ```bash
-python significance_tests/compute_bootstrap_significance.py \
+python evaluation/significance_tests/compute_bootstrap_significance.py \
   --in_dir "path/to/evaluation/tsv/files" \
   --out_dir "path/to/save/bootstrap"
 ```
@@ -104,7 +104,7 @@ inputting the directory containing the .tsv files with performance scores from t
 
 To compare models run
 ```bash
-python significance_tests/anaylse_bootstrap_significance.py \
+python evaluation/significance_tests/anaylse_bootstrap_significance.py \
   --in_file "path/to/bootstrap_results.csv" \
   --out_dir "path/to/save/rankings"
 ```
