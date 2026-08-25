@@ -42,7 +42,10 @@ python data/preprocessing/twitter/twitter_pair_sampling.py \
 ```
 #### Reddit
 
+Our Reddit dataset can be reconstructed from the URLs provided under https://huggingface.co/datasets/nllg/GerAV-Reddit. Reddit posts can for example be accessed via the Reddit API (recommended) or with a crawler. An example crawler is provided under `data/tools/reddit_crawl_example.py`; when using it make sure to consider rate limits and other constraints. 
+
 #### Mixed
+The mixed dataset can be reconstructed from the mixed dataset permalinks provided in the GerAV-Reddit dataset, combined with a stratified 20,000/4,000/4,000 train/validation/test split of the Twitter dataset. 
 
 ### Training
 
