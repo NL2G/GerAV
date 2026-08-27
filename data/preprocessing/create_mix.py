@@ -13,14 +13,15 @@ def select_subset(dataset, count = 10000):
     
     return ds
 
-
+# to build a mixed dataset, either include all reddit datasets + twitter here and adapt the counts below 
+# or alternatively only include twitter and then concatenate it with our mixed reddit dataset (after texts are retrieved for the urls)
 datasets = ["datasets to include in the mix"]
 datasets_loaded = [load_dataset(ds) for ds in datasets]
 train_dataframes, val_dataframes, test_dataframes = [], [], []
 for i, ds in enumerate(datasets_loaded):
-    ds_train = select_subset(ds["train"], count=1).to_pandas()
-    ds_val = select_subset(ds["validation"], count=1).to_pandas()
-    ds_test = select_subset(ds["test"], count=60).to_pandas()
+    ds_train = select_subset(ds["train"], count=20000).to_pandas()
+    ds_val = select_subset(ds["validation"], count=4000).to_pandas()
+    ds_test = select_subset(ds["test"], count=4000).to_pandas()
  
     train_dataframes.append(ds_train)
     val_dataframes.append(ds_val)
@@ -30,16 +31,6 @@ train_df = pd.concat(train_dataframes).reset_index(drop=True)
 val_df = pd.concat(val_dataframes).reset_index(drop=True)
 test_df = pd.concat(test_dataframes).reset_index(drop=True)
 
-def flatten_user_ids(df):
-    df["post_a_user_id"] = df["post_a"].apply(lambda x: str(x["user_id"]))
-    df["post_b_user_id"] = df["post_b"].apply(lambda x: str(x["user_id"]))
-    df["post_a"] = df["post_a"].apply(lambda x: {k: v for k, v in x.items() if k != "user_id"})
-    df["post_b"] = df["post_b"].apply(lambda x: {k: v for k, v in x.items() if k != "user_id"})
-    return df
-
-train_df = flatten_user_ids(train_df)
-val_df = flatten_user_ids(val_df)
-test_df = flatten_user_ids(test_df)
 
 full_ds = DatasetDict(
     {
