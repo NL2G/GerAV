@@ -27,19 +27,16 @@ Get access to the original dataset from:
 https://zenodo.org/records/7528718
 and store the files locally.
 
-For preprocessing and filtering:
+Our Twitter dataset can be reconstructed from tweet IDs provided under https://huggingface.co/datasets/nllg/GerAV-Twitter. Get access and store the ID dataset locally. 
+
+For reconstruction of the final dataset run 
 ```bash
-python data/preprocessing/twitter/filter_twitter.py \
-    --input "path/to/original/files" \
-    --output "path/to/store/output/csv"
+python data/preprocessing/Twitter/id_to_tweet.py \
+    --original_dir "path/to/original/twitter/dataset" \
+    --dataset_dir "path/to/id/dataset" \
+    --output_dir "path/to/output/dir"
 ```
 
-For AV pair sampling:
-```bash
-python data/preprocessing/twitter/twitter_pair_sampling.py \
-    --in_file "path/to/twitter_filtering/output.csv" \
-    --out_dir "path/to/store/twitter/pairs"
-```
 #### Reddit
 
 Our Reddit dataset can be reconstructed from the URLs provided under https://huggingface.co/datasets/nllg/GerAV-Reddit. Reddit posts can for example be accessed via the Reddit API (recommended) or with a crawler. An example crawler is provided under `data/tools/reddit_crawl_example.py`; when using it make sure to consider rate limits and other constraints. 
