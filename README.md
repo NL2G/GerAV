@@ -31,7 +31,7 @@ Our Twitter dataset can be reconstructed from tweet IDs provided under https://h
 
 For reconstruction of the final dataset run 
 ```bash
-python data/preprocessing/Twitter/id_to_tweet.py \
+python data/preprocessing/twitter/id_to_tweet.py \
     --original_dir "path/to/original/twitter/dataset" \
     --dataset_dir "path/to/id/dataset" \
     --output_dir "path/to/output/dir"
